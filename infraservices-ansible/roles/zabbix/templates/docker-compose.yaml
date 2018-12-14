@@ -8,6 +8,13 @@ db:
     - TZ=Asia/Shanghai
   restart: always
 
+javagateway:
+  image: zabbix/zabbix-java-gateway
+  container_name: zabbix_javagateway
+  environment:
+    - ZBX_START_POLLERS=20
+  restart: always
+
 server:
   container_name: zabbix_server
   image: zabbix/zabbix-server-mysql
@@ -21,10 +28,15 @@ server:
     - MYSQL_USER=root
     - MYSQL_PASSWORD=zabbix
     - ZBX_CACHESIZE=200M
-    - ZBX_STARTPINGERS=5
-    - ZBX_STARTPOLLERS=10
+    - ZBX_STARTPINGERS=15
+    - ZBX_STARTJAVAPOLLERS=15
+    - ZBX_STARTPOLLERS=30
+    - ZBX_JAVAGATEWAY_ENABLE=true
+    - ZBX_JAVAGATEWAY=javagateway
+    - ZBX_JAVAGATEWAYPORT=10052
   links:
     - db
+    - javagateway
   restart: always
 
 web:
@@ -43,8 +55,3 @@ web:
     - db
     - server
   restart: always
-  
-  #This Step is must
-  # docker exec -ti zabbix_db_1 mysql -u root -p
-  #mysql>grant all privileges on *.* to root@'%' identified by 'zabbix';
-  #mysql>flush privileges;
