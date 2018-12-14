@@ -1,0 +1,19 @@
+{%- set host_ip=hostvars[inventory_hostname]['ansible_default_ipv4']['address'] -%}
+rabbitmq:
+  image: rabbitmq:3.6.14-management-alpine
+  restart: always
+  privileged: true
+  container_name: rabbitmq-{{ ENV }}
+  {% for host in groups['rabbitmq'] %}
+  {%- set invent_ip=hostvars[host]['ansible_default_ipv4']['address'] -%}
+  {%- if host_ip == invent_ip -%}
+  hostname: rabbit{{ loop.index }}
+  {% endif %}
+  {%- endfor -%}
+  net: host
+  volumes:
+    - ./hosts:/etc/hosts
+    - ./data:/var/lib/rabbitmq
+  environment:
+    - TZ=Asia/Shanghai
+    - RABBITMQ_ERLANG_COOKIE=this.is.Sonny.Build

@@ -1,0 +1,5 @@
+{% for host in groups['cassandra'] %}
+{{ hostvars[host]['ansible_default_ipv4']['address'] }}  cassandra{{ loop.index }}
+{% endfor %}
+
+

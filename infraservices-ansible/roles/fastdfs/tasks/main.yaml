@@ -1,0 +1,10 @@
+- name: 建立存储数据文件夹
+  file: path=/data/fastdfs-{{ ENV }} state=directory owner={{ DOCKER_USER }}
+
+- name: 复制生成的docker-compose.yaml文件
+  template: src=docker-compose.yaml dest=/data/fastdfs-{{ ENV }}
+
+- name: 启动相关服务
+  shell: "cd /data/fastdfs \
+          && docker-compose down \
+          && docker-compose up -d "

@@ -1,0 +1,27 @@
+{%- set ip=hostvars[inventory_hostname]['ansible_default_ipv4']['address'] -%}
+{%- set primary=groups['cassandra'][0] -%}
+{%- set primary_ip=hostvars[primary]['ansible_default_ipv4']['address']  -%}
+cassandra:
+  image: google-samples/cassandra:v12
+  container_name: cassandra-{{ ENV }}
+  restart: always
+  {% for host in groups['cassandra'] %}
+  {%- set invent_ip=hostvars[host]['ansible_default_ipv4']['address'] -%}
+  {%- if ip == invent_ip -%}
+  hostname: cassandra{{ loop.index }}
+  privileged: true
+  {% endif %}
+  {%- endfor -%}
+  net: "host"
+  environment:
+    {% if ip != primary_ip -%}
+    # 其它加入集群的Cassadra，指定SEEDS
+    - CASSANDRA_SEEDS={{ primary_ip }}
+    {% endif -%}
+    - CASSANDRA_BROADCAST_ADDRESS={{ ip }}
+    - CASSANDRA_LISTEN_ADDRESS={{ ip }}
+    - MAX_HEAP_SIZE=100M
+    - HEAP_NEWSIZE=10M
+  volumes:
+    - ./hosts:/etc/hosts
+    - ./data:/var/lib/cassandra:rw

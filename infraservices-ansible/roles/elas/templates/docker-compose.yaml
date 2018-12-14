@@ -1,0 +1,24 @@
+elas:
+  image: elasticsearch:2.4.1
+  container_name: elas-{{ ENV }}
+  restart: always
+  net: host
+  privileged: true
+  environment:
+    {% set total_memory=hostvars[inventory_hostname]['ansible_memtotal_mb']|int  %}
+    {%- set value=total_memory//2  -%}
+    - "ES_JAVA_OPTS=-Xms{{ value }}m  -Xmx{{ value }}m"
+    - "JAVA_OPTS=-Xms{{ value }}m  -Xmx{{ value }}m"
+  volumes:
+    - ./data:/usr/share/elasticsearch/data
+    - ./plugins:/usr/share/elasticsearch/plugins
+  command:
+    /usr/share/elasticsearch/bin/elasticsearch
+    -Des.insecure.allow.root=true
+    -Des.cluster.name=elasticsearch-default
+    -Des.node.master=true
+    -Des.node.data=true
+    -Des.node.name={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address']  }}
+    -Des.discovery.zen.minimum_master_nodes=2
+    -Des.network.publish_host={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address']  }}
+    -Des.discovery.zen.ping.unicast.hosts={% for host in groups['elas'] %}{{ host }}{% if not loop.last %},{% endif %}{% endfor %}

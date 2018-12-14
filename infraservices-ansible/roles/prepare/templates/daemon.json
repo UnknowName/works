@@ -1,0 +1,8 @@
+{
+  "registry-mirrors": ["https://o9a5ub50.mirror.aliyuncs.com"],
+  "insecure-registries": [
+      "172.30.0.0/16",
+      "docker.hub.com:80"
+   ],
+   "add-registry": ["docker.hub.com:80"]
+}

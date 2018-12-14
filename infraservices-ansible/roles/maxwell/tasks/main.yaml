@@ -1,0 +1,8 @@
+- name: 创建文件夹
+  file: path=/data/maxwell-{{ ENV }} state=directory owner={{ DOCKER_USER }}
+
+- name: 复制文件
+  template: src=docker-compose.yaml  dest=/data/maxwell-{{ ENV }}
+
+- name: 启动服务
+  shell: cd /data/maxwell-{{ ENV }} && docker-compose down && docker-compose up -d

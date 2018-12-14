@@ -1,0 +1,27 @@
+- import_tasks: ../../prepare/tasks/iptables.yaml
+
+- name: 安装HAProxy
+  yum: name={{ item }} state=latest
+  with_items:
+    - haproxy
+    - keepalived
+
+- name: 复制配置文件
+  template: src=haproxy.cfg dest=/etc/haproxy/
+
+- name: 生成Keepalived
+  template: src={{ item }} dest=/etc/keepalived
+  with_items:
+    - check_haproxy.sh
+    - start.sh
+    - keepalived.conf
+
+- name: 检测脚本给予权限
+  shell: chmod +x /etc/keepalived/*.sh
+
+- name: 启动服务
+  shell: "systemctl enable keepalived \
+         && systemctl enable haproxy \
+         && systemctl start keepalived \
+         && systemctl start haproxy  \
+         && systemctl reload haproxy" 

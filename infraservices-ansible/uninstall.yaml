@@ -1,0 +1,53 @@
+---
+- hosts: all
+  tasks:
+    - name: 提醒用户将会清空所有相关数据
+      debug: msg=将清空所有数据!!!
+
+    - name: 睡眠60秒钟
+      shell: sleep 60
+
+    - name: 停止所有中间件服务
+      shell: cd {{ item }}-{{ ENV }}&& docker-compose down
+      with_items:
+        - /data/mongodb
+        - /data/elasticsearch
+        - /data/fastdfs
+        - /data/rabbitmq
+        - /data/hazelcast
+        - /data/kafka
+        - /data/maxwell
+        - /data/cassandra
+        - /data/zabbix
+        - /data/graylog
+      ignore_errors: true
+
+    - name: 删除HAProxy
+      shell: yum remove -y haproxy keepalived
+
+    #- name: 删除创建的用户
+    #  user:
+    #    name={{ DOCKER_USER }}
+    #    state=absent
+    #  when: DOCKER_USER is defined
+
+    - name: 取消自动挂载数据盘
+      lineinfile:
+        dest: /etc/fstab
+        line: "/dev/data/data  /data xfs defaults 1 1"
+        state: absent
+
+    - name: 取消挂载数据盘
+      shell: umount /data && mount -a
+      ignore_errors: true
+   
+    - name: 获取系统当前存在的PV
+      shell: pvs |grep {{ DATA_DISK }}
+      when: DATA_DISK is defined
+      register: pv_result
+      ignore_errors: true
+
+    - name: 移除创建的PV
+      shell: vgremove -f data && pvremove -f {{ DATA_DISK }}
+      when: DATA_DISK is defined and pv_result is succeeded
+      ignore_errors: true

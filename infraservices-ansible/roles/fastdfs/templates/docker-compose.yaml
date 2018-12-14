@@ -1,0 +1,47 @@
+version: "2"
+
+services:
+  tracker:
+    container_name: fdfs_tracker-{{ ENV }}
+    image: waj615/fdfs-centos:5.11
+    restart: always
+    privileged: true
+    environment:
+      - TRACKER_PORT=22122
+    network_mode: "host"
+    volumes:
+      - ./tracker:/var/local/fdfs/tracker
+    command: tracker
+
+  storage:
+    container_name: fdfs_storage-{{ ENV }}
+    image: waj615/fdfs-centos:5.11
+    restart: always
+    privileged: true
+    environment:
+      # tracker server地址可多个，多个时候变量加数字即可
+      # - TRACKER_SERVER1=x.x.x.x:yy
+      # - TRACKER_SERVER2=x.x.x.x:yy
+      # - TRACKER_SERVER..=....
+      # 只有一个tracker server 如下：
+      # - TRACKER_SERVER=IP:Port
+      # IP:PORT
+      {% set len=groups['fastdfs']|length %}
+      {%- if len==1  -%}
+      - TRACKER_SERVER=172.16.11.146:22122
+      {% else %}
+      {%- for host in groups['fastdfs'] -%}
+      - TRACKER_SERVER{{ loop.index }}={{ host }}:22122
+      {% endfor %}
+      {%- endif -%}
+      # 当group有多个时增加数量
+      - GROUP_COUNT=1
+      # 当前group名
+      - GROUP_NAME=group1
+      - STORAGE_PORT=23000
+      # 内置nginx端口
+      - HTTP_SERVER_PORT=8080
+    network_mode: "host"
+    volumes:
+      - ./storage:/var/local/fdfs/storage
+    command: storage

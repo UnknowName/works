@@ -1,0 +1,6 @@
+{%- set ip=hostvars[inventory_hostname]['ansible_all_ipv4_addresses'][0] -%}
+{%- set keys=hostvars[inventory_hostname] -%}
+{% for key in keys %}
+  {{ key }} = {{ hostvars[inventory_hostname][key] }}
+{% endfor %}
+{{ ip }}

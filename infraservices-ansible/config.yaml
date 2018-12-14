@@ -1,0 +1,44 @@
+---
+- hosts: all
+  roles:
+  - prepare
+
+- hosts: mongodb
+  roles:
+  - mongodb
+
+- hosts: rabbitmq
+  roles:
+  - rabbitmq
+
+- hosts: elas
+  roles:
+  - elas
+
+- hosts: fastdfs
+  roles:
+  - fastdfs
+
+- hosts: hazelcast
+  roles:
+  - hazelcast
+
+- hosts: kafka
+  roles:
+  - kafka
+
+- hosts: zabbix
+  roles:
+  - zabbix
+
+- hosts: maxwell
+  roles:
+  - maxwell
+
+- hosts: cassandra
+  roles:
+  - cassandra
+
+- hosts:
+  roles:
+  - lb

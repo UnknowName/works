@@ -1,0 +1,50 @@
+db:
+  image: mysql:5.7
+  container_name: zabbix_db
+  volumes:
+    - ./data:/var/lib/mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD='zabbix'
+    - TZ=Asia/Shanghai
+  restart: always
+
+server:
+  container_name: zabbix_server
+  image: zabbix/zabbix-server-mysql
+  ports:
+    - "10051:10051"
+  volumes:
+    - ./alertscripts:/usr/lib/zabbix/alertscripts
+    - ./externalscripts:/usr/lib/zabbix/externalscripts
+  environment:
+    - DB_SERVER_HOST=db
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=zabbix
+    - ZBX_CACHESIZE=200M
+    - ZBX_STARTPINGERS=5
+    - ZBX_STARTPOLLERS=10
+  links:
+    - db
+  restart: always
+
+web:
+  container_name: zabbix_web
+  image: zabbix/zabbix-web-nginx-mysql
+  ports:
+    - '8080:80'
+  environment:
+    - PHP_TZ=Asia/Shanghai
+    - ZBX_SERVER_HOST=server
+    - DB_SERVER_HOST=db
+    - ZBX_MEMORYLIMIT=500M
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=zabbix
+  links:
+    - db
+    - server
+  restart: always
+  
+  #This Step is must
+  # docker exec -ti zabbix_db_1 mysql -u root -p
+  #mysql>grant all privileges on *.* to root@'%' identified by 'zabbix';
+  #mysql>flush privileges;

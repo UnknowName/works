@@ -1,0 +1,18 @@
+maxwell:
+  image: zendesk/maxwell
+  container_name: maxwell-{{ ENV }}
+  privileged: true
+  net: host
+  restart: always
+  environment:
+    MYSQL_PASSWORD: "maxwell"
+    MYSQL_USERNAME: "maxwell"
+    MYSQL_HOST: mysql-{{ ENV }}
+    KAFKA_HOST: kafka-{{ ENV }}
+    KAFKA_PORT: 9092
+    MAXWELL_OPTIONS: "--port=3306
+                      --client_id=dev-es-maxwell
+                      --log_level=info
+                      --kafka_topic=es_%{database}_%{table}
+                      --include_dbs moses_product,moses_order,moses_shop_admin,mcs_order,moses_security_admin,moses_share,moses_app_admin,hsh_admin,mcs_advert,mcs_message,moses_zoneconf,hsh_life,mcs_data_migration,mcs_business,mcs_zoneconf
+                      --include_tables product,product_org,product_user_type,sku,user,sub_order,delivery_address,shop,business_order,org,browse,share,app_option,hbx_user,hbx_user_discount_info,panda_gold_flow,panda_user,sh_user_ticket,sh_coupon,sh_marketing_activity,advert_info,message_info,life_app_type,subject,life_city_type,life_city_type_app,life_three_app,t_ucp_staffbasicinfo,t_ucp_staffrole,t_ucp_orgainfo,invitation_log,login_log,package_info"

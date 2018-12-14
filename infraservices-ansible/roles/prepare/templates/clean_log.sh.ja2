@@ -1,0 +1,11 @@
+#!/bin/bash
+export PATH
+
+# Delete System Log
+find /var/log  -ctime +15 |xargs rm -rf
+
+#Delete jourlnal Log
+journalctl --vacuum-size=1K
+
+#Keep message log small
+cat /dev/null > /var/log/messages

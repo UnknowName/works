@@ -1,0 +1,16 @@
+- name: 查看主机IPV4
+  debug: msg={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address']  }} 
+
+- name: 查看主机名
+  debug: msg={{ hostvars[inventory_hostname]['ansible_nodename'] }}
+
+- name: 查看主机所有变量
+  template: src={{ item }}  dest=/tmp
+  with_items:
+    - info.yaml
+
+- name: 增加HOSTS
+  lineinfile:
+    dest=/etc/hosts
+    line={{ ADD_HOST }}
+  when: ADD_HOST is defined

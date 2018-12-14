@@ -1,0 +1,13 @@
+- name: 创建目录
+  file: path=/data/cassandra-{{ ENV }} state=directory owner={{ DOCKER_USER }}
+
+- name: 复制文件
+  template: src={{ item }} dest=/data/cassandra-{{ ENV }}
+  with_items:
+    - docker-compose.yaml
+    - hosts
+
+- name: 启动服务
+  shell: cd /data/cassandra-{{ ENV }} && docker-compose down && docker-compose up -d
+
+

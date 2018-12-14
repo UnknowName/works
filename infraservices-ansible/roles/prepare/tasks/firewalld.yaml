@@ -1,0 +1,16 @@
+- name: 安装Firewalld
+  yum: name=firewalld state=latest
+
+- name: 设置开机自动启动
+  shell: systemctl enable firewalld && systemctl start firewalld
+
+- name: 确保Iptables服务停掉，并禁开机启动
+  yum: name=iptables-services state=absent
+
+- name: 设置默认允许本机/24子网的主机
+  firewalld:
+    immediate=yes
+    zone=public
+    permanent=yes
+    state=enabled
+    rich_rule="rule family=ipv4 source address={{ hostvars[inventory_hostname]['ansible_default_ipv4']['address']  }}/24 accept"

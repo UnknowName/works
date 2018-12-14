@@ -1,0 +1,4 @@
+- hosts: kafka
+  roles:
+  # - debug
+  - kafka

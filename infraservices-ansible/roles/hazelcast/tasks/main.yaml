@@ -1,0 +1,13 @@
+- name: 创建文件夹
+  file: path=/data/hazelcast-{{ ENV }} state=directory owner={{ DOCKER_USER }}
+
+- name: 复制相关文件
+  template: src={{ item }} dest=/data/hazelcast-{{ ENV }}
+  with_items:
+    - docker-compose.yaml
+    - hazelcast.xml
+
+- name: 启动相关服务
+  shell: "cd /data/hazelcast \
+          && docker-compose down \
+          && docker-compose up -d"

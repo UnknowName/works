@@ -1,0 +1,5 @@
+- name: 优化部分内核参数
+  copy: src=../templates/100-user.conf dest=/etc/sysctl.d/
+
+- name: 应用内核参数修改
+  shell: sysctl -p /etc/sysctl.d/100-user.conf

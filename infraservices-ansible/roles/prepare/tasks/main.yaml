@@ -1,0 +1,89 @@
+---
+- import_tasks: sysctl.yaml
+- import_tasks: firewalld.yaml
+
+- name: 复制本地YUM源
+  template: src=local.repo dest=/etc/yum.repos.d/
+  when: YUM_ADDRESS is  defined
+
+- name: 增加HOSTS
+  lineinfile:
+    dest=/etc/hosts
+    line={{ ADD_HOST }}
+  when: ADD_HOST is defined
+
+- name: 安装基础包
+  yum: name={{ item }} state=present
+  with_items:
+    - docker
+    - NetworkManager
+    - docker-compose
+    - lvm2
+
+- name: 关闭SELinux
+  lineinfile:
+    dest: /etc/selinux/config
+    regexp: "^SELINUX="
+    line: "SELINUX=disabled"
+
+- name: 设置普通用户可以执行Docker命令
+  user: 
+    name={{ DOCKER_USER }}
+    groups=root
+    state=present
+  when: DOCKER_USER is defined
+
+- name: 设置Docker开机自动启动
+  shell: systemctl enable docker
+
+- name: 创建VG
+  lvg:
+    vg=data
+    force=true
+    pvs={{ DATA_DISK }}
+  ignore_errors: true
+  register: vg_result
+
+- name: 创建LV
+  lvol:
+    vg=data
+    lv=data
+    size=100%FREE
+    force=true
+  register: lv_result
+  when: vg_result is succeeded
+
+- name: 格式化LV
+  filesystem:
+    fstype: xfs
+    dev: /dev/data/data
+  register: fs_result
+  when: lv_result is succeeded
+
+- name: 创建data目录
+  file: path=/data state=directory mode=0755
+
+- name: 授于普通用户
+  file: path=/data state=directory mode=755 owner={{ DOCKER_USER }}
+  when: DOCKER_USER is defined
+
+- name: 设置自动挂载
+  lineinfile:
+    dest: /etc/fstab
+    line: "/dev/data/data  /data xfs defaults 1 1"
+  when: fs_result is succeeded
+
+- name: 复制Docker参数文件，增加默认增加的仓库以及信任增加的仓库
+  copy: src=../templates/daemon.json dest=/etc/docker
+
+- name: 启动Docker和挂载数据盘
+  shell: systemctl restart  docker && mount -a 
+
+- name: 复制自动清理日志脚本
+  copy: src=../templates/clean_log.sh.ja2  dest=/opt/clean_log.sh  mode=0744
+
+- name: 添加自动清理定时任务
+  cron: name="Auto Clean Log" job="/opt/clean_log.sh"  hour=2 minute=0
+
+- name: 定时清理增加权限
+  shell: chmod +x /opt/clean_log.sh

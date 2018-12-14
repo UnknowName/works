@@ -1,0 +1,26 @@
+- name: 创建服务相关文件夹
+  file: path=/data/rabbitmq-{{ ENV }} state=directory
+
+- name: 复制docker-compose文件
+  template: src={{ item }} dest=/data/rabbitmq-{{ ENV }}
+  with_items:
+    - hosts
+    - docker-compose.yaml
+    - init.sh
+    - join.sh
+  
+- name: 启动服务
+  shell: "cd /data/rabbitmq-{{ ENV }} \
+          && docker-compose down \
+          && docker-compose up -d"
+
+- name: 暂停60秒，等待RabbitMQ启动完成
+  wait_for: delay=60 host=0.0.0.0 port=5672
+
+- name: 执行Build Cluster
+  shell: sh /data/rabbitmq/init.sh
+  when: groups['rabbitmq'][0] == hostvars[inventory_hostname]['ansible_default_ipv4']['address'] 
+
+- name: 其他节点执行加入集群脚本
+  shell: sh /data/rabbitmq/join.sh
+  when: groups['rabbitmq'][0] != hostvars[inventory_hostname]['ansible_default_ipv4']['address'] 

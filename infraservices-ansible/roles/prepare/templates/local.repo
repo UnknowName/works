@@ -1,0 +1,48 @@
+[base]
+name=CentOS-$releasever - Offline Base
+baseurl=http://{{ YUM_ADDRESS }}/centos/7/base/
+enabled=1
+priority=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[updates]
+name=CentOS-$releasever - Offline Updates
+baseurl=http://{{ YUM_ADDRESS }}/centos/7/updates/
+enabled=1
+priority=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+#additional packages that may be useful
+[extras]
+name=CentOS-$releasever - Offline Extras
+baseurl=http://{{ YUM_ADDRESS }}/centos/7/extras/
+enabled=1
+priority=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[docker]
+name=CentOS-$releasever - Offline docker
+baseurl=http://{{ YUM_ADDRESS }}/centos/7/docker-main/
+enabled=1
+priority=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[epel]
+name=CentOS-$releasever - Offline epel
+baseurl=http://{{ YUM_ADDRESS }}/centos/7/epel/
+enabled=1
+priority=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7
+
+[centos-openshift-origin39]
+name=CentOS-$releasever - Offline openshift-origin36
+baseurl=http://{{ YUM_ADDRESS }}/centos/7/centos-openshift-origin39/
+enabled=1
+priority=1
+gpgcheck=0
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CentOS-7

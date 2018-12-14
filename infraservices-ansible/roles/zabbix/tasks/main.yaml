@@ -1,0 +1,25 @@
+- name: 准备文件夹
+  file: path=/data/zabbix state=directory
+
+- name: 复制文件
+  template: src={{ item }} dest=/data/zabbix
+  with_items:
+    - docker-compose.yaml
+    - init_db.sql
+
+- name: 打开防火墙
+  firewalld:
+    port: {{ item }}/tcp
+    permanent: yes
+    state: enabled
+    immediate: yes
+  with_items:
+    - 8080
+    - 10051
+
+- name: 启动服务
+  shell: "cd /data/zabbix \
+          && docker-compose down \
+          && docker-compose up -d \
+          && sleep 10
+          && docker exec -i zabbix_db mysql -u root < init_db.sql"

@@ -1,0 +1,13 @@
+- name: 准备文件夹
+  file: path=/data/kafka-{{ ENV }} state=directory  owner={{ DOCKER_USER }}
+
+- name: 复制模板文件
+  template: src={{ item }}  dest=/data/kafka-{{ ENV }}
+  with_items:
+  - docker-compose.yaml
+  - hosts
+
+- name: 启动服务
+  shell: "cd /data/kafka-{{ ENV }} \
+          && docker-compose down \
+          && docker-compose up -d"
