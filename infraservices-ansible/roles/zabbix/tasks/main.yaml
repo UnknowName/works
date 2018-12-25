@@ -14,7 +14,8 @@
     state: enabled
     immediate: yes
   with_items:
-    - 8080
+    - 80
+    - 3306
     - 10051
 
 - name: 启动服务
