@@ -2,6 +2,7 @@
 - hosts: all
   roles:
   - prepare
+  - zabbix-client
 
 - hosts: mongodb
   roles:
@@ -29,7 +30,7 @@
 
 - hosts: zabbix
   roles:
-  - zabbix
+  - zabbix-server
 
 - hosts: maxwell
   roles:

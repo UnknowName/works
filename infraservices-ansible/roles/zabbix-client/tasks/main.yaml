@@ -1,0 +1,11 @@
+- name: 安装Zabbix官方YUM源
+  template: src=zabbix.repo dest=/etc/yum.repos.d/
+
+- name: 安装Zabbix-agent
+  shell: yum remove -y zabbix* && yum install -y zabbix-agent
+
+- name: 替换配置文件
+  template: src=zabbix_agentd.conf  dest=/etc/zabbix/  
+
+- name: 启动Zabbix
+  shell: systemctl enable zabbix && systemctl restart zabbix-agent
