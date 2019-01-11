@@ -57,3 +57,17 @@ web:
     - db
     - server
   restart: always
+
+grafana:
+  container_name: grafana
+  image: grafana/grafana
+  restart: always
+  volumes:
+    - ./grafana:/var/lib/grafana
+  environment:
+    - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+  ports:
+    - "3000:3000"
+  links:
+    - db
+    - web
