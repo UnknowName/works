@@ -17,6 +17,7 @@
     - 80
     - 3306
     - 10051
+    - 3000
 
 - name: 启动服务
   shell: "cd /data/zabbix \
