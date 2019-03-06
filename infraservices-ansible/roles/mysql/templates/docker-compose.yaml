@@ -1,0 +1,13 @@
+mysql:
+  image: mysql:5.7
+  container_name: mysql-{{ ENV }}
+  # hostname: mysql
+  restart: "always"
+  privileged: true
+  net: "host"
+  volumes:
+    - ./data:/var/lib/mysql
+    - ./my.cnf:/etc/my.cnf
+  environment:
+    - MYSQL_ROOT_PASSWORD={{ MYSQL_PASSWORD | default('mysql') }}
+  

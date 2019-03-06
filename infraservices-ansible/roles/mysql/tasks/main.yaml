@@ -1,0 +1,32 @@
+- name: 准备文件夹
+  file: path=/data/mysql-{{ ENV }} state=directory owner={{ DOCKER_USER }}
+
+- name: 复制相关文件
+  template: src={{ item }} dest=/data/mysql-{{ ENV }}
+  with_items:
+    - docker-compose.yaml
+    - my.cnf
+
+- name: 复制主授权的SQL文件
+  template: src=master.sql dest=/data/mysql-{{ ENV }}
+  when: role == 'master'
+
+- name: 复制启动SLAVE文件
+  template: src=slave.sql  dest=/data/mysql-{{ ENV }}
+  when: role == 'slave'
+
+- name: 启动相关服务
+  shell: "cd /data/mysql-{{ ENV }} \
+          && docker-compose down \
+          && docker-compose up -d \
+          && sleep 60"
+
+- name: 在主库上执行授权脚本
+  shell: "cd /data/mysql-{{ ENV }} \
+           && docker exec -i mysql-{{ ENV }} mysql -uroot -p{{ MYSQL_PASSWORD|default('mysql') }} < master.sql"
+  when: role == 'master'
+
+- name: 在从库执行CHANGE MASTER
+  shell: "cd /data/mysql-{{ ENV }} \
+          && docker exec -i  mysql-{{ ENV }} mysql -uroot -p{{ MYSQL_PASSWORD|default('mysql') }} < slave.sql"
+  when: role == 'slave'
