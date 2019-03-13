@@ -1,13 +1,32 @@
 - name: 创建存储数据文件夹
   file: path=/data/elasticsearch-{{ ENV }} state=directory  owner={{ DOCKER_USER }}
 
-- name: 复制Elasitcsearch插件
-  copy: src=../files/plugins dest=/data/elasticsearch-{{ ENV }}
+# - name: 复制Elasitcsearch插件
+#  copy: src=../files/plugins dest=/data/elasticsearch-{{ ENV }}
+
+- name: 复制limits.conf文件
+  template: src=limits.conf dest=/etc/security/
+
+- name: 复制针对ELAS的内核参数修改
+  template: src=elas.conf dest=/etc/sysctl.d/
 
 - name: 生成docker-compose文件,JAVA内存为物理总内存一半
   template:  src=docker-compose.yaml dest=/data/elasticsearch-{{ ENV }}
 
+- name: 应用内核参数
+  shell: sysctl -p /etc/sysctl.d/elas.conf
+
+- name: 关闭SWAPP
+  shell: swapoff -a
+
+- name: 确保没有挂载swap
+  lineinfile:
+    dest: /etc/fstab
+    regexp: "swap"
+    state: absent
+
 - name: 启动服务
   shell: "cd /data/elasticsearch-{{ ENV }} \ 
          && docker-compose down \
-         && docker-compose up -d"
+         && docker-compose up -d \
+         && chmod -R 777 data"
