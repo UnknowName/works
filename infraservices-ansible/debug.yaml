@@ -1,4 +1,4 @@
 ---
-- hosts: localhost
+- hosts: elas
   roles:
   - debug

@@ -18,9 +18,9 @@
   wait_for: delay=60 host=0.0.0.0 port=5672
 
 - name: 执行Build Cluster
-  shell: sh /data/rabbitmq/init.sh
+  shell: sh /data/rabbitmq-{{ ENV }}/init.sh
   when: groups['rabbitmq'][0] == hostvars[inventory_hostname]['ansible_default_ipv4']['address'] 
 
 - name: 其他节点执行加入集群脚本
-  shell: sh /data/rabbitmq/join.sh
+  shell: sh /data/rabbitmq-{{ ENV }}/join.sh
   when: groups['rabbitmq'][0] != hostvars[inventory_hostname]['ansible_default_ipv4']['address'] 

@@ -1,5 +1,5 @@
 mongodb:
-  image: mongo:3.4
+  image: mongo:3.6
   container_name: "mongo-{{ ENV }}"
   restart: always
   privileged: true

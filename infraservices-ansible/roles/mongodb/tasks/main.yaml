@@ -2,7 +2,7 @@
   file: path=/data/mongodb-{{ ENV }} state=directory
 
 - name: 复制Compose文件
-  copy: src=../templates/docker-compose.yaml.ja2 dest=/data/mongodb-{{ ENV }}/docker-compose.yaml
+  template: src=../templates/docker-compose.yaml.ja2 dest=/data/mongodb-{{ ENV }}/docker-compose.yaml
 
 - name: 通过docker-compose启动mongodb
   shell: cd /data/mongodb-{{ ENV }}/ && docker-compose down && docker-compose up -d
@@ -11,9 +11,7 @@
   template: src={{ item }}  dest=/tmp/
   with_items:
     - init_replSet.sh
-
-- name: 复制允许复制集从库可写脚本
-  copy: src=../templates/slave_ok.sh dest=/tmp
+    - slave_ok.sh
 
 - name: 执行初始化Mongo复制集脚本
   shell: sh /tmp/init_replSet.sh

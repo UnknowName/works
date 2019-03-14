@@ -16,4 +16,4 @@ rabbitmq:
     - ./data:/var/lib/rabbitmq
   environment:
     - TZ=Asia/Shanghai
-    - RABBITMQ_ERLANG_COOKIE=this.is.Sonny.Build
+    - RABBITMQ_ERLANG_COOKIE=build.by.2019
