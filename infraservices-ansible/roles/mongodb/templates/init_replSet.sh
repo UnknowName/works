@@ -17,4 +17,5 @@ rsconf = {
 
 };
 rs.initiate(rsconf);
+sleep(1000);
 EOF

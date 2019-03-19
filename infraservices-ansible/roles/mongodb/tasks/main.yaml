@@ -2,23 +2,39 @@
   file: path=/data/mongodb-{{ ENV }} state=directory
 
 - name: 复制Compose文件
-  template: src=../templates/docker-compose.yaml.ja2 dest=/data/mongodb-{{ ENV }}/docker-compose.yaml
+  template: src={{ item }} dest=/data/mongodb-{{ ENV }}/  owner=polkitd
+  with_items:
+    - docker-compose.yaml
+    - key_file
 
 - name: 通过docker-compose启动mongodb
-  shell: cd /data/mongodb-{{ ENV }}/ && docker-compose down && docker-compose up -d
+  shell: "cd /data/mongodb-{{ ENV }} \
+          && chmod 600 key_file \
+          && docker-compose down \
+          && docker-compose up -d"
 
 - name: 复制初始化复制集脚本
   template: src={{ item }}  dest=/tmp/
   with_items:
     - init_replSet.sh
     - slave_ok.sh
+    - add_user.sh
+
+- name: 等待MongoDB所有服务启动
+  wait_for: delay=30 host=0.0.0.0 port=27017
 
 - name: 执行初始化Mongo复制集脚本
   shell: sh /tmp/init_replSet.sh
   run_once: true
+  when: 'inventory_hostname == groups.mongodb[0]'
 
-- name: 暂停60秒钟，等待复制集同步
-  wait_for: delay=60 host=0.0.0.0 port=27017
+- name: 暂停30秒钟，等待复制集同步
+  wait_for: delay=30 host=0.0.0.0 port=27017
+
+- name: 增加用户
+  shell: sh /tmp/add_user.sh
+  run_once: true
+  when: 'inventory_hostname == groups.mongodb[0]'
 
 - name: 允许所有复制集可以写入
   shell: sh /tmp/slave_ok.sh

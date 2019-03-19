@@ -1,0 +1,14 @@
+mongodb:
+  image: mongo:3.6
+  container_name: "mongo-{{ ENV }}"
+  restart: always
+  privileged: true
+  net: "host"
+  environment:
+    - TZ=Asia/Shanghai
+    # - MONGO_INITDB_USERNAME=admin
+    # - MONGO_INITDB_PASSWORD=siss.admin.mongo
+  volumes:
+    - ./data:/data/db
+    - ./key_file:/data/key_file
+  command: mongod --replSet rs0 --dbpath /data/db --port 27017 --auth --keyFile=/data/key_file
