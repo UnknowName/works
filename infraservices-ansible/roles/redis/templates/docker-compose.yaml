@@ -1,0 +1,17 @@
+redis:
+  image: redis:4 
+  container_name: redis-{{ ENV }}
+  restart: always
+  net: host
+  privileged: true
+  environment:
+    - TZ=Asia/Shanghai
+  ulimits:
+    memlock:
+      soft: -1
+      hard: -1
+  volumes:
+    - ./data:/data
+    - ./redis.conf:/etc/redis.conf
+  command:
+    redis-server /etc/redis.conf

@@ -1,0 +1,29 @@
+- name: 准备文件夹
+  file: path=/data/redis-{{ ENV }} state=directory owner={{ DOCKER_USER }}
+
+- name: 复制内核参数文件
+  template: src=101-redis.conf dest=/etc/sysctl.d/
+
+- name: 内核参数文件生效
+  shell: sysctl -p /etc/sysctl.d/101-redis.conf && chmod +x /etc/rc.d/rc.local
+
+- name: 关闭Linux的THP
+  shell: echo never > /sys/kernel/mm/transparent_hugepage/enabled
+
+- name: 开机自启动关闭
+  lineinfile:
+    dest: /etc/rc.local
+    line: "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+    state: present
+
+- name: 复制相关文件
+  template: src={{ item }} dest=/data/redis-{{ ENV }}
+  with_items:
+    - docker-compose.yaml
+    - redis.conf
+
+- name: 启动服务
+  shell: "cd /data/redis-{{ ENV }} \
+          && docker-compose down \
+          && docker-compose up -d"
+
