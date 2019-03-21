@@ -2,6 +2,12 @@
 - import_tasks: sysctl.yaml
 - import_tasks: firewalld.yaml
 
+- name: 修改当前系统时区为Asia/Shanghai
+  shell: \cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+- name: 设置hostname
+  shell: hostnamectl set-hostname {{ inventory_hostname }}
+
 - block:
   - name: 提示用户会清空现在数据
     debug: msg="如果当前磁盘有数据，将会清空！！！"
@@ -47,6 +53,7 @@
 - name: 安装基础包
   yum: name={{ item }} state=present
   with_items:
+    - ntpdate
     - docker
     - NetworkManager
     - docker-compose
@@ -90,8 +97,13 @@
 - name: 复制自动清理日志脚本
   copy: src=../templates/clean_log.sh.ja2  dest=/opt/clean_log.sh  mode=0744
 
+- name: 复制journald.conf限制默认Journald的日志文件大小
+  template: src=journald.conf dest=/etc/systemd/journald.conf
+
 - name: 添加自动清理定时任务
   cron: name="Auto Clean Log" job="/opt/clean_log.sh"  hour=2 minute=0
 
-- name: 定时清理增加权限
-  shell: chmod +x /opt/clean_log.sh
+- name: 定时清理增加权限与时间同步
+  shell: "chmod +x /opt/clean_log.sh \
+          &&systemctl restart systemd-journald \
+          &&ntpdate -s cn.pool.ntp.org"
