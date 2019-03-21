@@ -1,5 +1,8 @@
 - name: 安装Firewalld
-  yum: name=firewalld state=latest
+  yum: name={{ item }} state=latest
+  with_items:
+    - firewalld
+    - epel-release
 
 - name: 设置开机自动启动
   shell: systemctl enable firewalld && systemctl start firewalld
