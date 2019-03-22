@@ -3,7 +3,8 @@
 - import_tasks: firewalld.yaml
 
 - name: 修改当前系统时区为Asia/Shanghai
-  shell: \cp -f /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  shell: "mv /etc/localtime /etc/localtime.bak \
+         && cp  /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
 
 - name: 设置hostname
   shell: hostnamectl set-hostname {{ inventory_hostname }}
