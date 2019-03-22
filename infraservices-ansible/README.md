@@ -84,3 +84,5 @@ ansible-playbook -i hosts elas.yaml -vv
 - 通过Firewalld来实现安全控制
 
 - 默认允许宿主机所在网段的24位子网主机访问(比如172.16.0.0/24)
+  
+- 暂时不支持服务器具有多网卡的情形
