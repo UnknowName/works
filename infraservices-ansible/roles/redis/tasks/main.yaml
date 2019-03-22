@@ -21,6 +21,7 @@
   with_items:
     - docker-compose.yaml
     - redis.conf
+    - sentinel.conf
 
 - name: 启动服务
   shell: "cd /data/redis-{{ ENV }} \
