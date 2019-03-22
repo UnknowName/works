@@ -15,3 +15,16 @@ redis:
     - ./redis.conf:/etc/redis.conf
   command:
     redis-server /etc/redis.conf
+
+redis-sentinel:
+  image: redis:4
+  container_name: redis-sentinel
+  restart: always  
+  net: host
+  environment:
+    - TZ=Asia/Shanghai
+  volumes:
+    - ./sentinel-data:/data/sentinel
+    - ./sentinel.conf:/etc/sentinel.conf
+  command:
+    redis-sentinel /etc/sentinel.conf
