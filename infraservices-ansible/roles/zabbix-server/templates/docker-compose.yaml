@@ -1,73 +1,90 @@
-db:
-  image: mysql:5.7
-  container_name: zabbix_db
-  ports:
-    - "3306:3306"
-  volumes:
-    - ./data:/var/lib/mysql
-  environment:
-    - MYSQL_ROOT_PASSWORD='zabbix'
-    - TZ=Asia/Shanghai
-  restart: always
+version: '2'
+services:
+  db:
+    image: mysql:5.7
+    container_name: zabbix_db
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD='zabbix'
+      - TZ=Asia/Shanghai
+    restart: always
 
-javagateway:
-  image: zabbix/zabbix-java-gateway
-  container_name: zabbix_javagateway
-  environment:
-    - ZBX_START_POLLERS=20
-  restart: always
+  javagateway:
+    image: zabbix/zabbix-java-gateway
+    container_name: zabbix_javagateway
+    environment:
+      - ZBX_START_POLLERS=20
+    restart: always
 
-server:
-  container_name: zabbix_server
-  image: zabbix/zabbix-server-mysql
-  ports:
-    - "10051:10051"
-  volumes:
-    - ./alertscripts:/usr/lib/zabbix/alertscripts
-    - ./externalscripts:/usr/lib/zabbix/externalscripts
-  environment:
-    - DB_SERVER_HOST=db
-    - MYSQL_USER=root
-    - MYSQL_PASSWORD=zabbix
-    - ZBX_CACHESIZE=200M
-    - ZBX_STARTPINGERS=15
-    - ZBX_STARTJAVAPOLLERS=15
-    - ZBX_STARTPOLLERS=30
-    - ZBX_JAVAGATEWAY_ENABLE=true
-    - ZBX_JAVAGATEWAY=javagateway
-    - ZBX_JAVAGATEWAYPORT=10052
-  links:
-    - db
-    - javagateway
-  restart: always
+  server:
+    build:
+      context: "."
+      dockerfile: "Dockerfile-server"
+    image: zabbix-server
+    container_name: zabbix_server
+    # image: zabbix/zabbix-server-mysql
+    ports:
+      - "10051:10051"
+    volumes:
+      - ./alertscripts:/usr/lib/zabbix/alertscripts
+      - ./externalscripts:/usr/lib/zabbix/externalscripts
+    environment:
+      - DB_SERVER_HOST=db
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=zabbix
+      - ZBX_CACHESIZE=200M
+      - ZBX_STARTPINGERS=15
+      - ZBX_STARTJAVAPOLLERS=15
+      - ZBX_STARTPOLLERS=30
+      - ZBX_JAVAGATEWAY_ENABLE=true
+      - ZBX_JAVAGATEWAY=javagateway
+      - ZBX_JAVAGATEWAYPORT=10052
+    links:
+      - db
+      - javagateway
+    restart: always
 
-web:
-  container_name: zabbix_web
-  image: zabbix/zabbix-web-nginx-mysql
-  ports:
-    - '80:80'
-  environment:
-    - PHP_TZ=Asia/Shanghai
-    - ZBX_SERVER_HOST=server
-    - DB_SERVER_HOST=db
-    - ZBX_MEMORYLIMIT=500M
-    - MYSQL_USER=root
-    - MYSQL_PASSWORD=zabbix
-  links:
-    - db
-    - server
-  restart: always
+  web:
+    container_name: zabbix_web
+    image: zabbix/zabbix-web-nginx-mysql
+    ports:
+      - '80:80'
+    environment:
+      - PHP_TZ=Asia/Shanghai
+      - ZBX_SERVER_HOST=server
+      - DB_SERVER_HOST=db
+      - ZBX_MEMORYLIMIT=500M
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=zabbix
+    links:
+      - db
+      - server
+    restart: always
 
-grafana:
-  container_name: grafana
-  image: grafana/grafana
-  restart: always
-  volumes:
-    - ./grafana:/var/lib/grafana
-  environment:
-    - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
-  ports:
-    - "3000:3000"
-  links:
-    - db
-    - web
+  grafana:
+    container_name: grafana
+    image: grafana/grafana
+    restart: always
+    volumes:
+      - ./grafana:/var/lib/grafana
+    environment:
+      - GF_INSTALL_PLUGINS=alexanderzobnin-zabbix-app
+    ports:
+      - "3000:3000"
+    links:
+      - db
+      - web
+  
+  agent:
+    container_name: zabbix_agent
+    image: zabbix/zabbix-agent
+    restart: always
+    ports:
+      - "10050:10050"
+    privileged: true
+    user: root
+    environment:
+      - ZBX_SERVER_HOST=172.17.0.0/16

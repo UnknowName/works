@@ -1,27 +1,36 @@
 - name: 准备文件夹
-  file: path=/data/zabbix state=directory
+  file: path=/data/zabbix/{{ item }} state=directory
+  with_items:
+    - grafana
+    - alertscripts
 
 - name: 复制文件
   template: src={{ item }} dest=/data/zabbix
   with_items:
     - docker-compose.yaml
     - init_db.sql
+    - Dockerfile-server
+
+- name: 复制微信脚本文件
+  template: src=weixin.sh dest=/data/zabbix/alertscripts mode=777
 
 - name: 打开防火墙
   firewalld:
-    port: {{ item }}/tcp
-    permanent: yes
-    state: enabled
-    immediate: yes
-    with_items:
-      - 80
-      - 3306
-      - 10051
-      - 3000
+    port={{ item }}/tcp
+    permanent=yes
+    state=enabled
+    immediate=yes
+  with_items:
+    - 80
+    - 3306
+    - 10051
+    - 3000
+  ignore_errors: yes
 
 - name: 启动服务
   shell: "cd /data/zabbix \
           && docker-compose down \
+          && chown -R 777 grafana \
           && docker-compose up -d \
           && sleep 10
           && docker exec -i zabbix_db mysql -u root < init_db.sql"
