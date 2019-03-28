@@ -5,6 +5,6 @@
   template: src=docker-compose.yaml dest=/data/fastdfs-{{ ENV }}
 
 - name: 启动相关服务
-  shell: "cd /data/fastdfs \
+  shell: "cd /data/fastdfs-{{ ENV }} \
           && docker-compose down \
           && docker-compose up -d "

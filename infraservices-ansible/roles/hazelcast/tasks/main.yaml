@@ -8,6 +8,6 @@
     - hazelcast.xml
 
 - name: 启动相关服务
-  shell: "cd /data/hazelcast \
+  shell: "cd /data/hazelcast-{{ ENV }} \
           && docker-compose down \
           && docker-compose up -d"
