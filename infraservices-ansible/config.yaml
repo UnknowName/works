@@ -40,6 +40,6 @@
   roles:
   - cassandra
 
-- hosts:
+- hosts: lb
   roles:
   - lb
