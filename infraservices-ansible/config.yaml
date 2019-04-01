@@ -40,6 +40,10 @@
   roles:
   - cassandra
 
+- hosts: redis
+  roles:
+  - redis
+
 - hosts: lb
   roles:
   - lb
