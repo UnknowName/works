@@ -20,6 +20,7 @@ elas:
   command:
     /usr/share/elasticsearch/bin/elasticsearch
     -Ecluster.name=elasticsearch-default
+    -Eindices.fielddata.cache.size=40%
     -Enode.master=true
     -Ebootstrap.memory_lock=true
     -Enode.data=true
