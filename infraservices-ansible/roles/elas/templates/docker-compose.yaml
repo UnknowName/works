@@ -9,7 +9,7 @@ elas:
     {%- set value=total_memory//2  -%}
     - TZ=Asia/Shanghai
     - "ES_JAVA_OPTS=-Xms{{ value }}m  -Xmx{{ value }}m"
-    # - "JAVA_OPTS=-Xms{{ value }}m  -Xmx{{ value }}m"
+    - ES_HEAP_SIZE={{ value }}m
   ulimits:
     memlock:
       soft: -1
