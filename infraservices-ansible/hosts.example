@@ -62,7 +62,7 @@ MONGO_INITDB_PASSWORD = 'password'
 # Redis客户端的认证密码
 REDIS_PASS = "auth.env.user"
 
-# ZabbixServer端地址，安装客户端后允许的探测主机。建设为域名，后续可以随便更改
+# ZabbixServer端地址，安装客户端后允许的探测主机。建议为域名，后续可以随便更改
 ZBX_SERVER = "zabbix.domain.io"
 
 # 环境变量

@@ -73,9 +73,10 @@ ansible-playbook -i hosts elas.yaml -vv
   
   - User/Password: None
   
-- Redis Replicastion
+- Redis Replicastion Sent
   
   - Version: 4
+  - Password: auth.env.user
 
 ## 其他事宜
 
