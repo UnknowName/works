@@ -2,6 +2,19 @@
 - import_tasks: sysctl.yaml
 - import_tasks: firewalld.yaml
 
+- name: 增加DockerCE YUM源
+  template: src=docker-ce.repo dest=/etc/yum.repos.d/
+
+- name: 安装基础包
+  yum: name={{ item }} state=present
+  with_items:
+    - ntpdate
+    - docker-ce
+    - NetworkManager
+    - docker-compose
+    - lvm2
+    - tzdata
+
 - name: 修改当前系统时区为Asia/Shanghai
   shell: "mv /etc/localtime /etc/localtime.bak \
          && cp  /usr/share/zoneinfo/Asia/Shanghai /etc/localtime"
@@ -50,15 +63,6 @@
     dest=/etc/hosts
     line={{ ADD_HOST }}
   when: ADD_HOST is defined
-
-- name: 安装基础包
-  yum: name={{ item }} state=present
-  with_items:
-    - ntpdate
-    - docker
-    - NetworkManager
-    - docker-compose
-    - lvm2
 
 - name: 关闭SELinux
   lineinfile:
