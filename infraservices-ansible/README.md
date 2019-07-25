@@ -6,7 +6,7 @@
   
 - 主机需要配置静态IP
   
-- 基于Docker以及Docker-compose实现,窗口网络为Host,数据默认持久化至/data目录
+- 基于Docker以及Docker-compose实现,容器网络模式为`Host`,数据默认持久化至/data目录
   
 - 安装LB时，需要所有的组信息，但可以留空。比如不安装elas,但是清单文件elas组需要存在，因为会自动生成HAProxy文件时会用到这些信息
 
@@ -41,9 +41,10 @@ ansible-playbook -i hosts config.yaml -vv
 cat elas.yaml
 - hosts: elas
   roles:
+    # prepare只需要执行一次即可，比如后面还想安装redis.roles只填redis即可
     - prepare
     - elas
-ansible-playbook -i hosts elas.yaml -vv
+ansible-playbook -i hosts elas.yaml -v
 ```
 
 ## 安装完成后的默认信息(如果相关变量未指定)
@@ -73,7 +74,7 @@ ansible-playbook -i hosts elas.yaml -vv
   
   - User/Password: None
   
-- Redis Replicastion Sent
+- Redis sentinel cluster mode
   
   - Version: 4
   - Password: auth.env.user
