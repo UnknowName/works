@@ -21,6 +21,7 @@
       - KAFKA_LISTENERS=PLAINTEXT://{{ ip }}:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ ip }}:9092
       - JMX_PORT=1099
+      - KAFKA_HEAP_OPTS="-Xms2g -Xmx2g"
       - KAFKA_ZOOKEEPER_CONNECT={%- for host in groups['kafka'] -%}{{ host }}:2181{%- if not loop.last -%},{%- endif -%}{% endfor %}
 
   zookeeper:
