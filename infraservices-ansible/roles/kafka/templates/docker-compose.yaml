@@ -16,7 +16,9 @@
       - TZ=Asia/Shanghai
       - KAFKA_DEFAULT_REPLICATION_FACTOR={{ groups['kafka']|length }}
       - KAFKA_BROKER_ID={{ index }}
-      - KAFKA_NUM_PARTITIONS={{ groups['kafka']|length }}
+      # 如果配置多个分区，则需要相同数量的消费者，并指定不同分区消费
+      # - KAFKA_NUM_PARTITIONS={{ groups['kafka']|length }}
+      - KAFKA_NUM_PARTITIONS=1
       - KAFKA_ADVERTISED_HOST_NAME={{ ip }}
       - KAFKA_HOST_NAME={{ ip }}
       - KAFKA_LISTENERS=PLAINTEXT://{{ ip }}:9092
