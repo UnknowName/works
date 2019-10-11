@@ -16,11 +16,15 @@
       - TZ=Asia/Shanghai
       - KAFKA_DEFAULT_REPLICATION_FACTOR={{ groups['kafka']|length }}
       - KAFKA_BROKER_ID={{ index }}
+      # 如果配置多个分区，则需要相同数量的消费者，并指定不同分区消费
+      # - KAFKA_NUM_PARTITIONS={{ groups['kafka']|length }}
+      - KAFKA_NUM_PARTITIONS=1
       - KAFKA_ADVERTISED_HOST_NAME={{ ip }}
       - KAFKA_HOST_NAME={{ ip }}
       - KAFKA_LISTENERS=PLAINTEXT://{{ ip }}:9092
       - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://{{ ip }}:9092
       - JMX_PORT=1099
+      - KAFKA_HEAP_OPTS="-Xms2g -Xmx2g"
       - KAFKA_ZOOKEEPER_CONNECT={%- for host in groups['kafka'] -%}{{ host }}:2181{%- if not loop.last -%},{%- endif -%}{% endfor %}
 
   zookeeper:

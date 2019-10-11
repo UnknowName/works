@@ -65,7 +65,7 @@ REDIS_PASS = "auth.env.user"
 # ZabbixServer端地址，安装客户端后允许的探测主机。建议为域名，后续可以随便更改
 ZBX_SERVER = "zabbix.domain.io"
 
-# 环境变量
+# 环境变量,最终相关服务会生成服务名-环境名的文件夹，如redis-test
 ENV = 'test'
 
 # Keepalived+LVS的虚拟IP，需要同LB组的主机同一网段内
