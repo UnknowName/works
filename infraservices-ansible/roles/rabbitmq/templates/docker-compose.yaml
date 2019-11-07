@@ -1,4 +1,5 @@
 {%- set host_ip=hostvars[inventory_hostname]['ansible_default_ipv4']['address'] -%}
+{%- set num=hostvars[host]['ansible_processor_count'] -%}
 rabbitmq:
   image: rabbitmq:3.6.14-management-alpine
   restart: always
@@ -19,3 +20,5 @@ rabbitmq:
     - RABBITMQ_ERLANG_COOKIE=build.by.2019
     - RABBITMQ_DEFAULT_USER=guest
     - RABBITMQ_DEFAULT_PASS=guest
+    - RABBITMQ_VM_MEMORY_HIGH_WATERMARK_RELATIVE=0.5
+    - RABBITMQ_NUM_ACCEPTORS_TCP={{ num }}
