@@ -1,6 +1,12 @@
 - name: 创建服务相关文件夹
   file: path=/data/rabbitmq-{{ ENV }} state=directory
 
+- name: 复制优化大并发下的内核参数文件
+  template: src=90-rabbitmq.conf dest=/etc/sysctl.d/
+
+- name: 应用内核文件
+  shell: sysctl -p /etc/sysctl.d/90-rabbitmq.conf
+
 - name: 复制docker-compose文件
   template: src={{ item }} dest=/data/rabbitmq-{{ ENV }}
   with_items:
@@ -8,6 +14,7 @@
     - docker-compose.yaml
     - init.sh
     - join.sh
+    - rabbitmq.conf
   
 - name: 启动服务
   shell: "cd /data/rabbitmq-{{ ENV }} \
