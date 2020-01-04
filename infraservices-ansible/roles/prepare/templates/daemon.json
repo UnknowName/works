@@ -4,5 +4,9 @@
       "172.30.0.0/16",
       "docker.hub.com:80"
    ],
+   "log-opts": {
+      "max-file": "5",
+      "max-size":"10m"
+   },
    "add-registry": ["docker.hub.com:80"]
 }

@@ -3,3 +3,8 @@
 
 - name: 应用内核参数修改
   shell: sysctl -p /etc/sysctl.d/100-user.conf
+
+- name: 修改默认用户limists nofile。将值设置为系统最大值的一半
+  shell: "half=$(echo $(cat /proc/sys/fs/file-max)/2 | bc) \
+          && echo "root  - nofile ${half}" > /etc/security/limits.conf \
+          && echo "*     - nofile ${half}" >> /etc/security/limits.conf"
