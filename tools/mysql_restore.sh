@@ -104,15 +104,40 @@ function backup_history_tables() {
   else
     echo "Unkonw Operaton"
   fi
-
 }
 
 
-TABLES_BACKUP_DIR="/mysql/tablesBackup"
-# Backup Table
-backup_history_tables backup
+function check_data() {
+   show_sql="USE ${DB_NAME};SHOW TABLES"
+   tables=$(mysql -h ${SRC_HOST} -P${SRC_PORT} -u${SRC_USER} -p${SRC_PASSWORD} -e "${show_sql}" 2>/dev/null|grep ${BACKUP_MONTH})
+   eq = "true"
+   for table in ${tables};
+   do
+      count_sql="USE ${DB_NAME};SELECT COUNT(*) FROM ${table};"
+      src_count=$(mysql -h ${SRC_HOST} -P${SRC_PORT} -u${SRC_USER} -p${SRC_PASSWORD} -e "${count_sql}" | grep -v "COUNT")
+      dest_count=$(mysql -h ${SRC_HOST} -P${SRC_PORT} -u${SRC_USER} -p${SRC_PASSWORD} -e "${count_sql}" | grep -v "COUNT")
+      if [ ${src_count} -ne ${dest_count} ];then
+        eq = "false"
+      fi
+      echo "${table}  SrcCount: ${src_count}  dest_count: ${dest_count}" >> count_record.txt
+   done
+   echo ${eq}
+}
 
-# Restore Table
+# Init Files
+echo "" > count_reocrd.txt
+echo "" > create_table.sql
+
+# Backups Tables
+TABLES_BACKUP_DIR="/mysql/tablesBackup"
+
+# Backup or restore Table.Recommend one host backup, another host restore
+# backup_history_tables backup|resotre
 backup_history_tables restore
-file_dir=$(ls -l ${TABLES_BACKUP_DIR} | grep ${CURRENT_YEAR}|awk '{print $NF}')
-cd ${TABLES_BACKUP_DIR} && rm -rf ${file_dir}
+
+# Check Data
+eq=$(check_data)
+if [ ${eq} == "true" ];the
+  file_dir=$(ls -l ${TABLES_BACKUP_DIR} | grep ${CURRENT_YEAR}|awk '{print $NF}')
+  cd ${TABLES_BACKUP_DIR} && rm -rf ${file_dir}
+fi
