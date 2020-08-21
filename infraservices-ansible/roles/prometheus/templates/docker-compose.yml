@@ -1,0 +1,55 @@
+# Server
+prome:
+  image: prom/prometheus
+  container_name: prometheus
+  restart: always
+  net: host
+  volumes:
+    - ./prometheus.yml:/etc/prometheus/prometheus.yml
+  environment:
+    - TZ=Asia/Shanghai
+
+alert:
+  image: prom/alertmanager
+  container_name: alert-manager
+  restart: always
+  net: host
+  volumes:
+    - ./alertmanager.yml:/etc/alertmanager.yml
+  environment:
+    - TZ=Asia/Shanghai
+  command:
+    --config.file=/etc/alertmanager.yml
+
+# Agent
+prome-nodeexporter:
+  image: prome/node-exporter:latest
+  container_name: prome-nodeexporter
+  restart: always
+  net: host
+  environment:
+    - TZ=Asia/Shanghai
+
+# Auto Discovery
+consul:
+  image: consul
+  container_name: prome-consul
+  restart: always
+  net: host
+  volumes:
+    - ./consul_data:/consul/data
+  environment:
+    - TZ=Asia/Shanghai
+  command:
+    consul agent -dev -ui -data-dir=/consul/data -client 0.0.0.0
+
+# Dashboard
+grafana:
+  image: grafana/grafana
+  container_name: grafana
+  restart: always
+  net: host
+  environment:
+    - TZ=Asia/Shanghai
+  volumes:
+    - ./grafana_data:/var/lib/grafana

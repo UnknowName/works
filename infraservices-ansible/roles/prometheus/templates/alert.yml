@@ -1,0 +1,26 @@
+groups:
+- name: CPU使用率超过90%
+  rules:
+  - alert: CPU使用超过90%
+    expr: avg by (hostname)(irate(node_cpu_seconds_total{mode="idle"}[1m]) ) * 100 < 10
+    for: 1m
+    annotations:
+      description: "instance: {{ $labels.instance }} 服务器: CPU使用超过90%, 当前CPU空闲值: { $value }}%"
+
+- name: CPU 5分钟每核CPU平均负载大于1.5
+  rules:
+  - alert: CPU 5分钟平均负载过高
+    expr: count by (instance) (node_load5) / count by (instance)  (node_cpu_seconds_total{mode="system"}) > 1.5
+    for: 1m
+    annotations:
+      description: "{{ $labels.instance }} 五分钟平均负载:{{ $value }}"
+
+- name: 系统内存总使用大于80%
+  rules:
+  - alert: 内存使用率告警
+    expr: (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes+node_memory_Buffers_bytes+node_memory_Cached_bytes )) / node_memory_MemTotal_bytes * 100 > 80
+    for: 1m
+    labels:
+      severity: alert
+    annotations:
+      description: "{{ $labels.instance }} 服务器: 内存使用超过80%！(当前值: {{ $value }}%)"
